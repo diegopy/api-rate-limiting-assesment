@@ -1,7 +1,9 @@
 use anyhow::Result;
+use axum::extract::DefaultBodyLimit;
 use axum::{Router, Json};
 use dotenvy::dotenv;
 use serde_json::json;
+use tower_http::limit::RequestBodyLimitLayer;
 use std::net::SocketAddr;
 use tower::ServiceBuilder;
 use tower_http::cors::CorsLayer;
@@ -11,11 +13,10 @@ use tracing::{info, Level};
 pub mod config;
 mod errors;
 mod extractors;
-mod lib;
 mod v1;
 
 use crate::config::Config;
-use crate::lib::AppState;
+use transaction_queue_api::AppState;
 
 #[tokio::main]
 async fn main() -> Result<()> {
@@ -51,6 +52,7 @@ async fn main() -> Result<()> {
         .nest("/v1", v1::router())
         .layer(
             ServiceBuilder::new()
+                .layer(RequestBodyLimitLayer::new(2 * 1024 * 1024))
                 .layer(
                     TraceLayer::new_for_http()
                         .make_span_with(DefaultMakeSpan::new().level(Level::INFO))

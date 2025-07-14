@@ -8,7 +8,7 @@ resolver = "2"
 
 [workspace.package]
 version = "0.1.0"
-edition = "2021"
+edition = "2024"
 authors = ["Squads Engineering"]
 
 [workspace.dependencies]
@@ -18,7 +18,7 @@ tokio = { version = "1.42", features = ["full"] }
 # Web framework
 axum = { version = "0.7", features = ["macros"] }
 tower = { version = "0.5", features = ["full"] }
-tower-http = { version = "0.6", features = ["trace", "cors"] }
+tower-http = { version = "0.6", features = ["trace", "cors", "limit"] }
 
 # Database
 diesel = { version = "2.2", features = ["postgres", "chrono", "uuid", "serde_json"] }
@@ -40,6 +40,7 @@ anyhow = "1.0"
 # Logging
 tracing = "0.1"
 tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+log = "0.4.27"
 
 # Utils
 uuid = { version = "1.11", features = ["v4", "serde"] }

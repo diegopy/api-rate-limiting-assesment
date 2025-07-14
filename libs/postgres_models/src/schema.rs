@@ -20,10 +20,18 @@ diesel::table! {
 diesel::table! {
     rate_limits (id) {
         id -> Uuid,
-        account_id -> Text,
         limit_type -> Text,
         max_requests -> Int4,
         window_seconds -> Int4,
+        created_at -> Timestamptz,
+        updated_at -> Timestamptz,
+    }
+}
+
+diesel::table! {
+    accounts (id) {
+        id -> Text,
+        limit_type -> Text,
         created_at -> Timestamptz,
         updated_at -> Timestamptz,
     }

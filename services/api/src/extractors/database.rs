@@ -1,4 +1,4 @@
-use crate::lib::AppState;
+use transaction_queue_api::AppState;
 use axum::{
     async_trait,
     extract::{FromRef, FromRequestParts},

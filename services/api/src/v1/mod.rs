@@ -1,8 +1,8 @@
-use axum::{routing::post, Router};
+use axum::Router;
 
 mod transactions;
 
-pub fn router() -> Router<crate::lib::AppState> {
+pub fn router() -> Router<transaction_queue_api::AppState> {
     Router::new()
         .nest("/transactions", transactions::router())
 }

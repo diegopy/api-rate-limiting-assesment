@@ -1,5 +1,6 @@
 use postgres_models::DbPool;
 use redis_cache::RedisPool;
+use std::fmt::Debug;
 
 #[derive(Clone)]
 pub struct AppState {

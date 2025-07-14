@@ -1,0 +1,8 @@
+# Notes
+
+## Lack of clarity regarding requirements
+* The database schema proposed in the provided migrations originally assumes that each account_id has an entry in the rate_limits table, but the tests generate random account_ids to tests which of course don't exist. I modified the schema to a more rational approach, normalizing and separating the accounts from the rate_limit tiers, and for the purpose of passing the tests, instead of looking up by account_id (which won't exist as they are random), it uses the tier from the account_id prefix.
+* Used the [RequestBodyLimit](https://docs.rs/tower-http/latest/tower_http/limit/struct.RequestBodyLimit.html) middleware to limit request payload size.
+* On the requirements it wasn't clear if a complete reimplementation of the provided Redis rate limit and queueing utils was expected, or if it was OK to reuse them. I assumed reuse is adequate as the time will be prohibitive otherwise. However, some tests are expecting certain distributions on the priority list with distances > 100 between high and med, which is not the behaviour that's expected from the provided implementations.
+* There's an issue with the writing the new transaction into Postgres and then enqueueing the entry into the Redis priority list: If the server crashes between these two actions then the system is left in an inconsistent state. Solving this problem (dual-write) is not trivial and requires using some kind of Outbox pattern, and/or using Kafka so we can produce an event that will do the processing asynchronously and with idempotency, retrying until both actions are peformed.
+* In general I ran out of time to get all tests to pass.

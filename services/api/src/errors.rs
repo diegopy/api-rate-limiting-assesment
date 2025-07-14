@@ -1,35 +1,40 @@
 use axum::{
-    http::StatusCode,
+    http::{HeaderMap, StatusCode},
     response::{IntoResponse, Response},
     Json,
 };
 use serde_json::json;
+use tracing::{info};
 use std::fmt;
 
 #[derive(Debug)]
 pub struct AppError {
     pub status: StatusCode,
     pub message: String,
+    pub headers: HeaderMap,
 }
 
 impl AppError {
-    pub fn new(status: StatusCode, message: impl Into<String>) -> Self {
+    pub fn new(status: StatusCode, message: impl Into<String>, headers: HeaderMap) -> Self {
+        let message_string = message.into();
+        info!("Creating error: Status: {}, Message: {}", status, message_string);
         Self {
             status,
-            message: message.into(),
+            message: message_string,
+            headers,
         }
     }
 
     pub fn bad_request(message: impl Into<String>) -> Self {
-        Self::new(StatusCode::BAD_REQUEST, message)
+        Self::new(StatusCode::BAD_REQUEST, message, HeaderMap::new())
     }
 
     pub fn internal_server_error(message: impl Into<String>) -> Self {
-        Self::new(StatusCode::INTERNAL_SERVER_ERROR, message)
+        Self::new(StatusCode::INTERNAL_SERVER_ERROR, message, HeaderMap::new())
     }
 
-    pub fn too_many_requests(message: impl Into<String>) -> Self {
-        Self::new(StatusCode::TOO_MANY_REQUESTS, message)
+    pub fn too_many_requests(message: impl Into<String>, headers: HeaderMap) -> Self {
+        Self::new(StatusCode::TOO_MANY_REQUESTS, message, headers)
     }
 }
 
@@ -49,8 +54,9 @@ impl IntoResponse for AppError {
                 "status": self.status.as_u16(),
             }
         }));
-
-        (self.status, body).into_response()
+        let mut response = (self.status, body).into_response();
+        *response.headers_mut() = self.headers;
+        response
     }
 }
 

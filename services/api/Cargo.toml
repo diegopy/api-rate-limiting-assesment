@@ -43,6 +43,7 @@ tracing-subscriber = { workspace = true }
 uuid = { workspace = true }
 chrono = { workspace = true }
 dotenvy = { workspace = true }
+log = { workspace = true }
 
 [dev-dependencies]
 reqwest = { workspace = true }

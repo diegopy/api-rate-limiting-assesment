@@ -23,17 +23,23 @@ CREATE INDEX idx_transaction_queue_scheduled_at ON transaction_queue(scheduled_a
 -- Create rate_limits table
 CREATE TABLE rate_limits (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    account_id TEXT NOT NULL,
     limit_type TEXT NOT NULL,
     max_requests INTEGER NOT NULL,
     window_seconds INTEGER NOT NULL,
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-    UNIQUE(account_id, limit_type)
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
 -- Create index
-CREATE INDEX idx_rate_limits_account_id ON rate_limits(account_id);
+CREATE INDEX idx_rate_limits_limit_type ON rate_limits(limit_type);
+
+-- Crate accounts table
+CREATE TABLE accounts (
+    id TEXT PRIMARY KEY,
+    limit_type TEXT NOT NULL,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
 
 -- Create update trigger for updated_at
 CREATE OR REPLACE FUNCTION update_updated_at_column()
@@ -49,3 +55,6 @@ CREATE TRIGGER update_transaction_queue_updated_at BEFORE UPDATE
 
 CREATE TRIGGER update_rate_limits_updated_at BEFORE UPDATE
     ON rate_limits FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+
+CREATE TRIGGER update_accpimts_updated_at BEFORE UPDATE
+    ON accounts FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();

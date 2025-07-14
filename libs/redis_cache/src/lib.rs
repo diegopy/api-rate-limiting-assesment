@@ -1,4 +1,5 @@
 use deadpool_redis::{redis::AsyncCommands, Config, Pool, Runtime};
+use tracing::info;
 
 pub type RedisPool = Pool;
 pub type RedisConnection = deadpool_redis::Connection;
@@ -48,7 +49,6 @@ impl RateLimiter {
         
         let window_start = current_time - (window_seconds * 1000);
         let window_start_nanos = (window_start * 1_000_000) as f64;
-        let current_time_nanos = (current_time * 1_000_000) as f64;
         let rate_limit_key = format!("rate_limit:{}", key);
         
         // Remove old entries from sorted set
@@ -126,7 +126,7 @@ impl QueueManager {
         let score = (1000 - priority) as f64 + (timestamp / 1e15); // Timestamp scaled to avoid affecting priority
         
         // Add to priority queue (sorted set)
-        let _: i32 = conn.zadd(&priority_queue_name, score, data).await?;
+        let _: i32 = conn.zadd(&priority_queue_name, data, score).await?;
         
         // Get current position in priority order
         let position = self.get_priority_position(&priority_queue_name, data).await?;
